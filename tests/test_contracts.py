@@ -4,7 +4,6 @@ from pydantic import ValidationError
 from model_service.contracts import (
     INPUT_SCHEMA_VERSION,
     OUTPUT_SCHEMA_VERSION,
-    InputContract,
     OutputContract,
     coerce_input,
     coerce_output,

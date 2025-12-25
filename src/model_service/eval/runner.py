@@ -116,7 +116,12 @@ def validate_dataset(rows: list[dict]) -> DatasetQualityReport:
     )
 
 
-def evaluate(model: ModelAdapter, dataset_path: str | Path, timeout_s: float) -> EvalReport:
+def evaluate(
+    model: ModelAdapter,
+    dataset_path: str | Path,
+    timeout_s: float,
+    runtime_settings: AdapterRuntimeSettings | None = None,
+) -> EvalReport:
     rows = load_jsonl(dataset_path)
     quality_report = validate_dataset(rows)
     if quality_report.invalid_rows:
