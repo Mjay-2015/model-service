@@ -86,6 +86,32 @@ def load_jsonl(path: str | Path) -> list[dict]:
     return rows
 
 
+@dataclass(frozen=True)
+class DatasetQualityReport:
+    total_rows: int
+    invalid_rows: int
+    schema_version_errors: int
+
+    @property
+    def ok(self) -> bool:
+        return self.invalid_rows == 0
+
+
+def validate_dataset(rows: list[dict]) -> DatasetQualityReport:
+    invalid_rows = 0
+    schema_version_errors = 0
+    for row in rows:
+        schema_version = row.get("schema_version")
+        if schema_version != "1.0":
+            invalid_rows += 1
+            schema_version_errors += 1
+    return DatasetQualityReport(
+        total_rows=len(rows),
+        invalid_rows=invalid_rows,
+        schema_version_errors=schema_version_errors,
+    )
+
+
 def _render_html_summary(report: EvalReport) -> str:
     trace_rows = "\n".join(
         f"<tr><td>{t.index}</td><td><pre>{html.escape(json.dumps(t.input, ensure_ascii=False, indent=2))}</pre></td>"
@@ -149,6 +175,9 @@ def evaluate(
         raise ValueError("burst_size must be >= 1")
 
     rows = load_jsonl(dataset_path)
+    quality_report = validate_dataset(rows)
+    if not quality_report.ok:
+        raise ValueError("dataset failed quality checks")
     latencies: list[float] = []
     traces: list[TraceSample] = []
     ok = 0
