@@ -83,15 +83,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _print_quality_report(report: DatasetQualityReport) -> None:
-    summary = {
-        "total_rows": report.total_rows,
-        "valid_rows": report.valid_rows,
-        "invalid_rows": report.invalid_rows,
-        "schema_version_errors": report.schema_version_errors,
-        "language_errors": report.language_errors,
-        "metadata_errors": report.metadata_errors,
-    }
-    print(json.dumps({"dataset_quality": summary}, indent=2))
+    print(json.dumps({"dataset_quality": report.as_dict()}, indent=2))
 
 
 def main(argv: list[str] | None = None) -> int:
