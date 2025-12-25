@@ -1,4 +1,4 @@
-{"text":"hello world"}
-{"text":"this is a tiny dataset"}
-{"text":"contracts > vibes"}
-{"text":"make failure modes boring"}
+{"schema_version":"1.0","text":"hello world","language":"en","metadata":{"id":"tiny-1","source":"demo"}}
+{"schema_version":"1.0","text":"this is a tiny dataset","language":"en","metadata":{"id":"tiny-2","source":"demo"}}
+{"schema_version":"1.0","text":"contracts > vibes","language":"en","metadata":{"id":"tiny-3","source":"demo"}}
+{"schema_version":"1.0","text":"make failure modes boring","language":"en","metadata":{"id":"tiny-4","source":"demo"}}
