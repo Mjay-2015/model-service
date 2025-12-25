@@ -7,20 +7,16 @@ import sys
 from model_service.config import load_settings
 from model_service.contracts import coerce_input
 from model_service.eval.runner import evaluate, load_jsonl
-from model_service.model.stub import StubAdapter
 from model_service.service.pipeline import run
-
-
-def _get_adapter(name: str):
-    # Expand later: hosted adapter, local model adapter, etc.
-    if name == "stub":
-        return StubAdapter()
-    raise SystemExit(f"Unknown adapter: {name!r}")
+from model_service.service.adapters import get_adapter
 
 
 def cmd_predict(args: argparse.Namespace) -> int:
     settings = load_settings()
-    model = _get_adapter(settings.adapter)
+    try:
+        model = get_adapter(settings.adapter)
+    except ValueError as e:
+        raise SystemExit(str(e))
     x = coerce_input({"text": args.text})
     y = run(model, x, timeout_s=args.timeout_s or settings.default_timeout_s)
     print(json.dumps(y.model_dump(), ensure_ascii=False))
@@ -45,7 +41,10 @@ def cmd_validate(args: argparse.Namespace) -> int:
 
 def cmd_eval(args: argparse.Namespace) -> int:
     settings = load_settings()
-    model = _get_adapter(settings.adapter)
+    try:
+        model = get_adapter(settings.adapter)
+    except ValueError as e:
+        raise SystemExit(str(e))
     report = evaluate(model, args.dataset, timeout_s=args.timeout_s or settings.default_timeout_s)
     print(json.dumps(report.__dict__, indent=2))
     return 0
