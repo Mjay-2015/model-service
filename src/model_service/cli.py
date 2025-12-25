@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 
+from model_service import __version__
 from model_service.config import AdapterRuntimeSettings, Settings, load_settings
 from model_service.contracts import coerce_input
 from model_service.eval.runner import DatasetQualityReport, evaluate, load_jsonl, validate_dataset
@@ -13,9 +13,11 @@ from model_service.service.pipeline import run
 
 def _get_adapter(name: str):
     # Expand later: hosted adapter, local model adapter, etc.
+    known = {"stub"}
     if name == "stub":
         return StubAdapter()
-    raise SystemExit(f"Unknown adapter: {name!r}")
+    allowed = ", ".join(sorted(known))
+    raise SystemExit(f"Unknown adapter: {name!r}. Allowed adapters: {allowed}")
 
 
 def _adapter_runtime(settings: Settings, name: str) -> AdapterRuntimeSettings:
@@ -63,6 +65,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="model-service", add_help=True)
+    p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     p_pred = sub.add_parser("predict", help="Run a single prediction")
@@ -83,15 +86,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _print_quality_report(report: DatasetQualityReport) -> None:
-    summary = {
-        "total_rows": report.total_rows,
-        "valid_rows": report.valid_rows,
-        "invalid_rows": report.invalid_rows,
-        "schema_version_errors": report.schema_version_errors,
-        "language_errors": report.language_errors,
-        "metadata_errors": report.metadata_errors,
-    }
-    print(json.dumps({"dataset_quality": summary}, indent=2))
+    print(json.dumps({"dataset_quality": report.as_dict()}, indent=2))
 
 
 def main(argv: list[str] | None = None) -> int:

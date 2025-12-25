@@ -22,3 +22,15 @@ def test_adapter_settings_env_defaults_on_invalid(monkeypatch):
     monkeypatch.setenv("MODEL_SERVICE_ADAPTER_SETTINGS", "not-json")
     settings = load_settings()
     assert settings.adapter_overrides == {}
+
+
+def test_default_timeout_invalid_env_uses_default(monkeypatch):
+    monkeypatch.setenv("MODEL_SERVICE_TIMEOUT_S", "nope")
+    settings = load_settings()
+    assert settings.default_timeout_s == 2.0
+
+
+def test_default_timeout_non_positive_env_uses_default(monkeypatch):
+    monkeypatch.setenv("MODEL_SERVICE_TIMEOUT_S", "0")
+    settings = load_settings()
+    assert settings.default_timeout_s == 2.0

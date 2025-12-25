@@ -52,6 +52,10 @@ Validate a dataset:
 Run evaluation:
 - `model-service eval --dataset src/model_service/eval/datasets/tiny.jsonl`
 
+## Testing
+- Preferred (installs package): `pip install -e ".[dev]" && pytest`
+- Offline/locked network workaround: `PYTHONPATH=src pytest`
+
 ## Getting started scenarios
 
 ### Local stub (fastest path)
@@ -123,6 +127,9 @@ sequenceDiagram
 - `MODEL_SERVICE_ADAPTER` (default: `stub`): select which adapter `_get_adapter` returns. Use the same env var in your HTTP service process so CLI + service exercise identical code paths.
 - `MODEL_SERVICE_TIMEOUT_S` (default: `2.0`): shared timeout for `pipeline.run`. CLI can override per-call via `--timeout-s`; services should plumb the env-derived default into their handler.
 - Add adapter-specific env vars (e.g., `MODEL_SERVICE_API_URL`, `MODEL_SERVICE_API_TOKEN`) inside your adapter implementation; both the CLI and service will consume them when `_get_adapter` constructs the adapter, keeping behaviors aligned.
+- `MODEL_SERVICE_ADAPTER_SETTINGS` (default: unset): JSON map of adapter runtime overrides. Example:
+  - `{"stub": {"max_concurrency": 4, "rate_limit_per_second": 2.5, "retry_attempts": 3, "retry_backoff_base_s": 0.2, "retry_jitter_s": 0.1}}`
+- `MODEL_SERVICE_LOG_LEVEL` (default: `INFO`): log level for model service components (`DEBUG`, `INFO`, `WARNING`, `ERROR`).
 
 ## Principles
 - The system is the product

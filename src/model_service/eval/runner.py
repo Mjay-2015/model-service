@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import statistics
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -49,12 +50,14 @@ class DatasetQualityReport:
 def _percentile(values: list[float], p: float) -> float:
     if not values:
         return 0.0
-    s = sorted(values)
-    idx = int(round((p / 100.0) * (len(s) - 1)))
-    return float(s[idx])
+    if len(values) == 1:
+        return float(values[0])
+    p = min(max(p, 0.0), 100.0)
+    percentile_index = max(1, min(100, int(round(p))))
+    return float(statistics.quantiles(values, n=100, method="inclusive")[percentile_index - 1])
 
 
-def load_jsonl(path: str | Path) -> list[dict]:
+def load_jsonl(path: str | Path) -> list[dict[str, object]]:
     p = Path(path)
     rows: list[dict] = []
     with p.open("r", encoding="utf-8") as f:
@@ -116,7 +119,12 @@ def validate_dataset(rows: list[dict]) -> DatasetQualityReport:
     )
 
 
-def evaluate(model: ModelAdapter, dataset_path: str | Path, timeout_s: float) -> EvalReport:
+def evaluate(
+    model: ModelAdapter,
+    dataset_path: str | Path,
+    timeout_s: float,
+    runtime_settings: AdapterRuntimeSettings | None = None,
+) -> EvalReport:
     rows = load_jsonl(dataset_path)
     quality_report = validate_dataset(rows)
     if quality_report.invalid_rows:
