@@ -51,6 +51,7 @@ Validate a dataset:
 
 Run evaluation:
 - `model-service eval --dataset src/model_service/eval/datasets/tiny.jsonl`
+- `model-service eval --dataset src/model_service/eval/datasets/tiny.jsonl --concurrency 4 --burst-size 8 --stop-success-rate 0.95 --html-summary eval.html --redact-traces` (simulates bursts, stops when success rate dips, redacts trace inputs, and emits an HTML summary artifact)
 
 ## Principles
 - The system is the product

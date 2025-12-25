@@ -6,7 +6,7 @@ import sys
 
 from model_service.config import load_settings
 from model_service.contracts import coerce_input
-from model_service.eval.runner import evaluate, load_jsonl
+from model_service.eval.runner import StopConditions, evaluate, load_jsonl
 from model_service.model.stub import StubAdapter
 from model_service.service.pipeline import run
 
@@ -46,8 +46,34 @@ def cmd_validate(args: argparse.Namespace) -> int:
 def cmd_eval(args: argparse.Namespace) -> int:
     settings = load_settings()
     model = _get_adapter(settings.adapter)
-    report = evaluate(model, args.dataset, timeout_s=args.timeout_s or settings.default_timeout_s)
-    print(json.dumps(report.__dict__, indent=2))
+    stop_conditions = (
+        StopConditions(success_rate_lt=args.stop_success_rate)
+        if args.stop_success_rate is not None
+        else None
+    )
+
+    redactor = None
+    if args.redact_traces:
+
+        def _redact(data: dict) -> dict:
+            redacted = dict(data)
+            if "text" in redacted:
+                redacted["text"] = "[redacted]"
+            return redacted
+
+        redactor = _redact
+
+    report = evaluate(
+        model,
+        args.dataset,
+        timeout_s=args.timeout_s or settings.default_timeout_s,
+        concurrency=args.concurrency,
+        burst_size=args.burst_size,
+        stop_conditions=stop_conditions,
+        redactor=redactor,
+        html_summary_path=args.html_summary,
+    )
+    print(json.dumps(report.as_dict(), indent=2, ensure_ascii=False))
     return 0
 
 
@@ -67,6 +93,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_eval = sub.add_parser("eval", help="Run evaluation over a dataset")
     p_eval.add_argument("--dataset", required=True)
     p_eval.add_argument("--timeout-s", type=float, default=None)
+    p_eval.add_argument("--concurrency", type=int, default=1)
+    p_eval.add_argument("--burst-size", type=int, default=None)
+    p_eval.add_argument("--stop-success-rate", type=float, default=None)
+    p_eval.add_argument("--html-summary", type=str, default=None)
+    p_eval.add_argument(
+        "--redact-traces",
+        action="store_true",
+        help="Redact trace inputs (best-effort redaction of text field)",
+    )
     p_eval.set_defaults(fn=cmd_eval)
 
     return p
