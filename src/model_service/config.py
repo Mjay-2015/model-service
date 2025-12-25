@@ -72,9 +72,22 @@ class Settings:
     adapter_overrides: dict[str, AdapterRuntimeSettings]
 
 
+def _float_env(key: str, default: float, min_value: float | None = None) -> float:
+    raw = os.getenv(key)
+    if raw is None:
+        return default
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return default
+    if min_value is not None and value <= min_value:
+        return default
+    return value
+
+
 def load_settings() -> Settings:
     return Settings(
-        default_timeout_s=float(os.getenv("MODEL_SERVICE_TIMEOUT_S", "2.0")),
+        default_timeout_s=_float_env("MODEL_SERVICE_TIMEOUT_S", 2.0, min_value=0.0),
         adapter=os.getenv("MODEL_SERVICE_ADAPTER", "stub"),
         adapter_overrides=_load_adapter_overrides(),
     )
