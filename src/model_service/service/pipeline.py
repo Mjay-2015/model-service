@@ -39,6 +39,9 @@ class _AdapterControl:
             else None
         )
         self._rate_limit = settings.rate_limit_per_second
+        self._capacity = 1.0 if self._rate_limit else 0.0
+        if self._rate_limit:
+            self._capacity = max(1.0, float(self._rate_limit))
         self._tokens = float(settings.rate_limit_per_second or 0.0)
         self._last_refill = time.perf_counter()
         self._lock = threading.Lock()
@@ -63,7 +66,7 @@ class _AdapterControl:
                 elapsed = now - self._last_refill
                 self._last_refill = now
                 self._tokens = min(
-                    self._rate_limit, self._tokens + elapsed * self._rate_limit
+                    self._capacity, self._tokens + elapsed * self._rate_limit
                 )
                 if self._tokens >= 1.0:
                     self._tokens -= 1.0
