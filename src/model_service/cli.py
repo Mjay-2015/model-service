@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
-
 from model_service.config import AdapterRuntimeSettings, Settings, load_settings
 from model_service.contracts import coerce_input
 from model_service.eval.runner import DatasetQualityReport, evaluate, load_jsonl, validate_dataset
