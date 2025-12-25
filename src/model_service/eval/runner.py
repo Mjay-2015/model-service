@@ -6,6 +6,7 @@ from pathlib import Path
 
 from model_service.contracts import coerce_input
 from model_service.model.base import ModelAdapter
+from model_service.config import AdapterRuntimeSettings
 from model_service.service.pipeline import run
 
 
@@ -38,7 +39,12 @@ def load_jsonl(path: str | Path) -> list[dict]:
     return rows
 
 
-def evaluate(model: ModelAdapter, dataset_path: str | Path, timeout_s: float) -> EvalReport:
+def evaluate(
+    model: ModelAdapter,
+    dataset_path: str | Path,
+    timeout_s: float,
+    runtime_settings: AdapterRuntimeSettings | None = None,
+) -> EvalReport:
     rows = load_jsonl(dataset_path)
     latencies: list[float] = []
     ok = 0
@@ -46,7 +52,7 @@ def evaluate(model: ModelAdapter, dataset_path: str | Path, timeout_s: float) ->
 
     for row in rows:
         x = coerce_input(row)
-        y = run(model, x, timeout_s=timeout_s)
+        y = run(model, x, timeout_s=timeout_s, runtime_settings=runtime_settings)
         latencies.append(float(y.latency_ms or 0.0))
         if y.ok:
             ok += 1
