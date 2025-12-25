@@ -52,6 +52,10 @@ Validate a dataset:
 Run evaluation:
 - `model-service eval --dataset src/model_service/eval/datasets/tiny.jsonl`
 
+## Testing
+- Preferred (installs package): `pip install -e ".[dev]" && pytest`
+- Offline/locked network workaround: `PYTHONPATH=src pytest`
+
 ## Getting started scenarios
 
 ### Local stub (fastest path)
