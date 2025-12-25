@@ -6,7 +6,7 @@ import sys
 
 from model_service.config import load_settings
 from model_service.contracts import coerce_input
-from model_service.eval.runner import evaluate, load_jsonl
+from model_service.eval.runner import DatasetQualityReport, evaluate, load_jsonl, validate_dataset
 from model_service.model.stub import StubAdapter
 from model_service.service.pipeline import run
 
@@ -29,17 +29,10 @@ def cmd_predict(args: argparse.Namespace) -> int:
 
 def cmd_validate(args: argparse.Namespace) -> int:
     rows = load_jsonl(args.dataset)
-    bad = 0
-    for i, row in enumerate(rows, start=1):
-        try:
-            coerce_input(row)
-        except Exception as e:  # noqa: BLE001
-            bad += 1
-            print(f"row {i}: invalid input ({type(e).__name__}): {e}", file=sys.stderr)
-    if bad == 0:
-        print("ok: dataset inputs conform to contract")
+    report = validate_dataset(rows)
+    _print_quality_report(report)
+    if report.invalid_rows == 0:
         return 0
-    print(f"failed: {bad} row(s) violate the input contract", file=sys.stderr)
     return 2
 
 
@@ -70,6 +63,18 @@ def build_parser() -> argparse.ArgumentParser:
     p_eval.set_defaults(fn=cmd_eval)
 
     return p
+
+
+def _print_quality_report(report: DatasetQualityReport) -> None:
+    summary = {
+        "total_rows": report.total_rows,
+        "valid_rows": report.valid_rows,
+        "invalid_rows": report.invalid_rows,
+        "schema_version_errors": report.schema_version_errors,
+        "language_errors": report.language_errors,
+        "metadata_errors": report.metadata_errors,
+    }
+    print(json.dumps({"dataset_quality": summary}, indent=2))
 
 
 def main(argv: list[str] | None = None) -> int:
