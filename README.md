@@ -1,5 +1,7 @@
 # model-service
 
+[![CI](https://github.com/Mjay-2015/model-service/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Mjay-2015/model-service/actions/workflows/ci.yml)
+
 A production-oriented CLI template for integrating and evaluating ML models inside a software service.
 
 I care about software that's easier to build, change, and reason about.
@@ -135,3 +137,7 @@ sequenceDiagram
 - Optimize for change
 
 For design rationale, see [`DESIGN.md`](DESIGN.md).
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).
