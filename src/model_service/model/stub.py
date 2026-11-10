@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+
 from model_service.contracts import InputContract, OutputContract
 
 

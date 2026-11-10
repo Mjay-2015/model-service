@@ -3,11 +3,11 @@ from __future__ import annotations
 import random
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 from contextlib import contextmanager
 
 from model_service.config import AdapterRuntimeSettings
-
 from model_service.contracts import InputContract, OutputContract
 from model_service.model.base import ModelAdapter
 from model_service.observability.logging import get_logger
@@ -27,7 +27,7 @@ def _fallback(model_version: str, err: str, latency_ms: float) -> OutputContract
 
 
 _controls_lock = threading.Lock()
-_controls: dict[int, "_AdapterControl"] = {}
+_controls: dict[int, _AdapterControl] = {}
 
 
 class _AdapterControl:
@@ -107,10 +107,9 @@ def run(
         err: str | None = None
         controls.wait_rate_limit()
         try:
-            with controls.concurrent_slot():
-                with ThreadPoolExecutor(max_workers=1) as ex:
-                    fut = ex.submit(model.predict, x)
-                    y = fut.result(timeout=timeout_s)
+            with controls.concurrent_slot(), ThreadPoolExecutor(max_workers=1) as ex:
+                fut = ex.submit(model.predict, x)
+                y = fut.result(timeout=timeout_s)
 
             latency_ms = (time.perf_counter() - start) * 1000
             return y.model_copy(update={"latency_ms": latency_ms})

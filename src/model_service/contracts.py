@@ -18,14 +18,14 @@ class InputContract(BaseModel):
 
     @field_validator("schema_version")
     @classmethod
-    def _enforce_schema_version(cls, v: str) -> str:  # noqa: D417 (pydantic)
+    def _enforce_schema_version(cls, v: str) -> str:
         if v != INPUT_SCHEMA_VERSION:
             raise ValueError(f"input schema_version mismatch: expected {INPUT_SCHEMA_VERSION}, got {v}")
         return v
 
     @field_validator("language")
     @classmethod
-    def _validate_language(cls, v: str) -> str:  # noqa: D417 (pydantic)
+    def _validate_language(cls, v: str) -> str:
         if v not in LANGUAGE_WHITELIST:
             allowed = ", ".join(sorted(LANGUAGE_WHITELIST))
             raise ValueError(f"language must be one of: {allowed}")
@@ -33,7 +33,7 @@ class InputContract(BaseModel):
 
     @field_validator("metadata")
     @classmethod
-    def _validate_metadata(cls, v: dict[str, str]) -> dict[str, str]:  # noqa: D417 (pydantic)
+    def _validate_metadata(cls, v: dict[str, str]) -> dict[str, str]:
         missing = REQUIRED_METADATA_KEYS.difference(v)
         if missing:
             raise ValueError(f"metadata missing required keys: {sorted(missing)}")
@@ -53,7 +53,7 @@ class OutputContract(BaseModel):
 
     @field_validator("schema_version")
     @classmethod
-    def _enforce_schema_version(cls, v: str) -> str:  # noqa: D417 (pydantic)
+    def _enforce_schema_version(cls, v: str) -> str:
         if v != OUTPUT_SCHEMA_VERSION:
             raise ValueError(f"output schema_version mismatch: expected {OUTPUT_SCHEMA_VERSION}, got {v}")
         return v

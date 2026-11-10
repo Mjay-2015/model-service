@@ -6,6 +6,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from model_service.config import AdapterRuntimeSettings
 from model_service.contracts import (
     INPUT_SCHEMA_VERSION,
     LANGUAGE_WHITELIST,
@@ -13,7 +14,6 @@ from model_service.contracts import (
     coerce_input,
 )
 from model_service.model.base import ModelAdapter
-from model_service.config import AdapterRuntimeSettings
 from model_service.service.pipeline import run
 
 
@@ -50,7 +50,7 @@ def _percentile(values: list[float], p: float) -> float:
     if not values:
         return 0.0
     s = sorted(values)
-    idx = int(round((p / 100.0) * (len(s) - 1)))
+    idx = round((p / 100.0) * (len(s) - 1))
     return float(s[idx])
 
 
@@ -100,8 +100,8 @@ def validate_dataset(rows: list[dict]) -> DatasetQualityReport:
                 elif err.get("loc") == ("metadata",):
                     metadata_errors += 1
             # If we miss specific categorization, still count the row as invalid
-        except Exception:
-            # Non-ValidationError should still count as invalid
+        except Exception:  # noqa: BLE001, S110
+            # Any other error still counts the row as invalid (it is not added to valid_rows).
             pass
 
     total_rows = len(rows)

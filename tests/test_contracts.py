@@ -20,7 +20,7 @@ def test_input_contract_accepts_text():
 
 
 def test_input_contract_rejects_empty_text():
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         coerce_input({"text": ""})
 
 

@@ -1,5 +1,5 @@
-import time
 import threading
+import time
 
 from model_service.config import AdapterRuntimeSettings
 from model_service.contracts import InputContract, OutputContract

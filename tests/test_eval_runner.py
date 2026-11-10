@@ -1,8 +1,9 @@
 from pathlib import Path
+
 import pytest
 
-from model_service.model.stub import StubAdapter
 from model_service.eval.runner import DatasetQualityReport, evaluate, load_jsonl, validate_dataset
+from model_service.model.stub import StubAdapter
 
 
 def test_evaluate_counts_rows(tmp_path: Path):
