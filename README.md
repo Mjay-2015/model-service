@@ -1,6 +1,6 @@
 # model-service
 
-[![CI](https://github.com/Mjay-2015/model-service/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Mjay-2015/model-service/actions/workflows/ci.yml)
+[![CI](https://github.com/nataliedonga/model-service/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nataliedonga/model-service/actions/workflows/ci.yml)
 
 A production-oriented CLI template for integrating and evaluating ML models inside a software service.
 
